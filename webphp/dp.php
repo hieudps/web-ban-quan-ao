@@ -2,7 +2,7 @@
 $host = "localhost";
 $username = "root";
 $password = "";         // Mật khẩu rỗng
-$database = "qlhb1";    // Thay bằng tên database của bạn
+$database = "qlhb1";    // Thay bằng tên database của bạn nhớ lấy thông tin trong csdl nha
 
 $conn = new mysqli($host, $username, $password, $database);
 

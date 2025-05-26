@@ -1,0 +1,151 @@
+-- TẠO DATABASE
+CREATE DATABASE IF NOT EXISTS QLHB1 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE QLHB1;
+
+-- XÓA BẢNG NẾU TỒN TẠI
+DROP TABLE IF EXISTS ChiTietHoaDons;
+DROP TABLE IF EXISTS HoaDons;
+DROP TABLE IF EXISTS SanPhams;
+DROP TABLE IF EXISTS LoaiSanPhams;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Admins;
+
+-- TẠO BẢNG ADMINS
+CREATE TABLE Admins (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(191) NOT NULL,
+    Email VARCHAR(191) NOT NULL UNIQUE,
+    Password VARCHAR(191) NOT NULL,
+    IsSuper BIT NOT NULL DEFAULT b'0',
+    Birth DATE NOT NULL DEFAULT '2021-01-22',
+    NgayTaoTaiKhoan DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Phone VARCHAR(30) NOT NULL DEFAULT '0',
+    Address VARCHAR(40) NOT NULL DEFAULT '',
+    Photo VARCHAR(100) NOT NULL DEFAULT 'image.jpg',
+    IsLock BIT NOT NULL DEFAULT b'0',
+    IsDelete BIT NOT NULL DEFAULT b'0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- TẠO BẢNG USERS
+CREATE TABLE Users (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(191) NOT NULL,
+    Email VARCHAR(191) NOT NULL UNIQUE,
+    Password VARCHAR(191) NOT NULL,
+    Birth DATE NOT NULL DEFAULT '2021-01-22',
+    NgayTaoTaiKhoan DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Phone VARCHAR(30) NOT NULL DEFAULT '0',
+    Address VARCHAR(40) NOT NULL,
+    Photo VARCHAR(100) NOT NULL DEFAULT 'image.jpg',
+    IsLock BIT NOT NULL DEFAULT b'0',
+    IsDelete BIT NOT NULL DEFAULT b'0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- TẠO BẢNG LOAI SAN PHAM
+CREATE TABLE LoaiSanPhams (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    TenLoaiSanPham VARCHAR(50) NOT NULL,
+    DaXoa BIT NOT NULL DEFAULT b'0',
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- TẠO BẢNG SAN PHAM
+CREATE TABLE SanPhams (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    TenSanPham VARCHAR(50) NOT NULL,
+    AdminId INT NOT NULL,
+    LoaiSanPhamId INT NOT NULL,
+    MoTaSanPham TEXT NOT NULL,
+    SoLuong INT NOT NULL CHECK (SoLuong >= 0),
+    DonGia INT NOT NULL CHECK (DonGia >= 0),
+    HinhAnh VARCHAR(50) NOT NULL DEFAULT 'default.jpg',
+    NgayDang DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    DaXoa BIT NOT NULL DEFAULT b'0',
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME NULL,
+    CONSTRAINT FK_SanPhams_Admins FOREIGN KEY (AdminId) REFERENCES Admins(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_SanPhams_LoaiSanPhams FOREIGN KEY (LoaiSanPhamId) REFERENCES LoaiSanPhams(Id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- TẠO BẢNG HOA DON
+CREATE TABLE HoaDons (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    UserId INT NOT NULL,
+    DiaChiNhanHang VARCHAR(50) NOT NULL,
+    TinhTrangThanhToan BIT NOT NULL DEFAULT b'0',
+    NgayTao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME NULL,
+    CONSTRAINT FK_HoaDons_Users FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- TẠO BẢNG CHI TIET HOA DON
+CREATE TABLE ChiTietHoaDons (
+    HoaDonId INT NOT NULL,
+    SanPhamId INT NOT NULL,
+    SoLuong INT NOT NULL CHECK (SoLuong >= 1),
+    DonGia INT NOT NULL CHECK (DonGia >= 0),
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME NULL,
+    PRIMARY KEY (HoaDonId, SanPhamId),
+    CONSTRAINT FK_ChiTietHoaDons_HoaDons FOREIGN KEY (HoaDonId) REFERENCES HoaDons(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_ChiTietHoaDons_SanPhams FOREIGN KEY (SanPhamId) REFERENCES SanPhams(Id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+USE QLHB1;
+
+-- Thêm dữ liệu cho bảng Admins
+INSERT INTO Admins (Name, Email, Password, IsSuper, Birth, Phone, Address, Photo, IsLock, IsDelete)
+VALUES
+('Nguyen Van A', 'admin1@example.com', 'password1', b'1', '1980-05-10', '0123456789', 'Ha Noi', 'admin1.jpg', b'0', b'0'),
+('Tran Thi B', 'admin2@example.com', 'password2', b'0', '1985-07-20', '0987654321', 'Ho Chi Minh', 'admin2.jpg', b'0', b'0'),
+('Le Van C', 'admin3@example.com', 'password3', b'0', '1990-09-15', '0911222333', 'Da Nang', 'admin3.jpg', b'0', b'0'),
+('Pham Thi D', 'admin4@example.com', 'password4', b'1', '1975-12-01', '0933444555', 'Hai Phong', 'admin4.jpg', b'0', b'0'),
+('Hoang Van E', 'admin5@example.com', 'password5', b'0', '1988-03-22', '0900111222', 'Can Tho', 'admin5.jpg', b'0', b'0');
+
+-- Thêm dữ liệu cho bảng Users
+INSERT INTO Users (Name, Email, Password, Birth, Phone, Address, Photo, IsLock, IsDelete)
+VALUES
+('Nguyen Van F', 'user1@example.com', 'pass1', '1995-01-10', '0123123456', 'Ha Noi', 'user1.jpg', b'0', b'0'),
+('Tran Thi G', 'user2@example.com', 'pass2', '1992-02-20', '0987456789', 'Ho Chi Minh', 'user2.jpg', b'0', b'0'),
+('Le Van H', 'user3@example.com', 'pass3', '1990-03-15', '0911333444', 'Da Nang', 'user3.jpg', b'0', b'0'),
+('Pham Thi I', 'user4@example.com', 'pass4', '1997-04-05', '0933555777', 'Hai Phong', 'user4.jpg', b'0', b'0'),
+('Hoang Van J', 'user5@example.com', 'pass5', '1994-05-25', '0900222333', 'Can Tho', 'user5.jpg', b'0', b'0');
+
+-- Thêm dữ liệu cho bảng LoaiSanPhams
+INSERT INTO LoaiSanPhams (TenLoaiSanPham, DaXoa)
+VALUES
+('Áo Thun', b'0'),
+('Quần Jeans', b'0'),
+('Giày Thể Thao', b'0'),
+('Túi Xách', b'0'),
+('Mũ Nón', b'0');
+
+-- Thêm dữ liệu cho bảng SanPhams
+INSERT INTO SanPhams (TenSanPham, AdminId, LoaiSanPhamId, MoTaSanPham, SoLuong, DonGia, HinhAnh, DaXoa)
+VALUES
+('Áo Thun Nam', 1, 1, 'Áo thun nam chất liệu cotton', 100, 150000, 'aothunnam.jpg', b'0'),
+('Quần Jeans Nữ', 2, 2, 'Quần jeans nữ thời trang', 50, 350000, 'quanjeansnu.jpg', b'0'),
+('Giày Thể Thao', 3, 3, 'Giày thể thao chạy bộ', 200, 500000, 'giaythethao.jpg', b'0'),
+('Túi Xách Da', 4, 4, 'Túi xách da thật', 30, 1200000, 'tuixachda.jpg', b'0'),
+('Mũ Nón Lưỡi Trai', 5, 5, 'Mũ nón lưỡi trai thời trang', 80, 200000, 'munonluoitrai.jpg', b'0');
+
+-- Thêm dữ liệu cho bảng HoaDons
+INSERT INTO HoaDons (UserId, DiaChiNhanHang, TinhTrangThanhToan)
+VALUES
+(1, '123 Đường A, Hà Nội', b'1'),
+(2, '456 Đường B, Hồ Chí Minh', b'0'),
+(3, '789 Đường C, Đà Nẵng', b'1'),
+(4, '101 Đường D, Hải Phòng', b'0'),
+(5, '202 Đường E, Cần Thơ', b'1');
+
+-- Thêm dữ liệu cho bảng ChiTietHoaDons
+INSERT INTO ChiTietHoaDons (HoaDonId, SanPhamId, SoLuong, DonGia)
+VALUES
+(1, 1, 2, 150000),
+(1, 3, 1, 500000),
+(2, 2, 1, 350000),
+(3, 4, 1, 1200000),
+(4, 5, 3, 200000);
+
